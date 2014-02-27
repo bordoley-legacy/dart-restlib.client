@@ -1,0 +1,11 @@
+name: restlib_client
+description: A sample command-line application
+dependencies:
+  restlib_common:
+    git: https://code.google.com/p/dart-restlib.common/
+  restlib_core:
+    git: https://code.google.com/p/dart-restlib.core/  
+dev_dependencies:
+  restlib_testing:
+    git: https://code.google.com/p/dart-restlib.testing/
+  unittest: any

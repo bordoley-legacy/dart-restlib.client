@@ -12,7 +12,7 @@ typedef Option<RequestWriter> RequestWriterProvider(Request request);
 typedef Option<ResponseParser> ResponseParserProvider(ContentInfo contentInfo);
 typedef Future<Response> ResponseParser(Response response, Stream<List<int>> msgStream);
 
-abstract class HttpClient<TReq, TRes> implements Function {
+abstract class RestClient<TReq, TRes> implements Function {
   Future<Response<TRes>> call(final Request<TReq> request);
 }
 

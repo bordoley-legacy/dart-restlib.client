@@ -8,10 +8,13 @@ import "package:restlib_core/data.dart";
 import "package:restlib_core/http.dart";
 import "package:restlib_core/multipart.dart";
 
-typedef Future<Response> HttpClient(Request request);
 typedef Option<RequestWriter> RequestWriterProvider(Request request);
 typedef Option<ResponseParser> ResponseParserProvider(ContentInfo contentInfo);
 typedef Future<Response> ResponseParser(Response response, Stream<List<int>> msgStream);
+
+abstract class HttpClient<TReq, TRes> implements Function {
+  Future<Response<TRes>> call(final Request<TReq> request);
+}
 
 abstract class RequestWriter {
   Request withContentInfo(final Request request);

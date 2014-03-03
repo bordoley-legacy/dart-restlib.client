@@ -17,7 +17,7 @@ abstract class RestClient<TReq, TRes> implements Function {
 }
 
 abstract class RequestWriter<T> {
-  Request withContentInfo(final Request request);
+  Request withContentInfo(final Request<T> request);
   Future write(final Request<T> request, StreamSink<List<int>> msgSink);
 }
 

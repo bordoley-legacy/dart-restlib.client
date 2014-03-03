@@ -16,9 +16,9 @@ abstract class RestClient<TReq, TRes> implements Function {
   Future<Response<TRes>> call(final Request<TReq> request);
 }
 
-abstract class RequestWriter {
+abstract class RequestWriter<T> {
   Request withContentInfo(final Request request);
-  Future write(final Request request, StreamSink<List<int>> msgSink);
+  Future write(final Request<T> request, StreamSink<List<int>> msgSink);
 }
 
 Future<Response<Multipart>> parseMultipart(

@@ -1,4 +1,4 @@
-library restlib.client;
+library client;
 
 import "dart:async";
 import "dart:convert";

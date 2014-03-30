@@ -4,6 +4,7 @@ import "dart:async";
 import "dart:convert";
 
 import "package:restlib_common/collections.dart";
+import "package:restlib_common/preconditions.dart";
 import "package:restlib_core/data.dart";
 import "package:restlib_core/http.dart";
 import "package:restlib_core/multipart.dart";
@@ -11,9 +12,35 @@ import "package:restlib_core/multipart.dart";
 typedef Option<RequestWriter> RequestWriterProvider(Request request);
 typedef Option<ResponseParser> ResponseParserProvider(ContentInfo contentInfo);
 typedef Future<Response> ResponseParser(Response response, Stream<List<int>> msgStream);
+typedef RequestHandle HttpClient(Request);
 
-abstract class RestClient<TReq, TRes> implements Function {
-  Future<Response<TRes>> call(final Request<TReq> request);
+abstract class RequestHandle<TRes> {
+  Stream<RequestStateEvent> get requestState;
+  Future<Response<TRes>> get response;
+  Future cancel();
+}
+
+abstract class RequestStateEvent {
+  static const RequestStateEvent CONNECTION_ESTABLISHED = const _RequestStateEvent(0);
+  static const RequestStateEvent HEADERS_SENT = const _RequestStateEvent(1);
+
+  factory RequestStateEvent.dataSent(int byteCount) =>
+      new _DataSentEvent(checkNotNull(byteCount));
+}
+
+abstract class DataSentEvent implements RequestStateEvent {
+  int get byteCount;
+}
+
+class _DataSentEvent implements DataSentEvent {
+  final int byteCount;
+
+  _DataSentEvent(this.byteCount);
+}
+
+class _RequestStateEvent implements RequestStateEvent {
+  final int index;
+  const _RequestStateEvent(this.index);
 }
 
 abstract class RequestWriter<T> {
@@ -36,7 +63,9 @@ Future<Response<Multipart>> parseMultipart(
 Future<Response<Form>> parseForm(final Response response, final Stream<List<int>> msgStream) =>
     parseString(response, msgStream)
       .then((final Response<String> response) =>
-          response.with_(entity: Form.parser.parse(response.entity.value).nullableValue));
+          Form.parser.parse(response.entity.value).fold(
+              (final Form form) => response.with_(entity: form),
+              (_) => response));
 
 Future<Response<String>> parseString(final Response response, final Stream<List<int>> msgStream) {
   final Charset charset =
